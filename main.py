@@ -21,3 +21,9 @@ def list_group_names_for_user(client: boto3.client, username: str) -> list[str]:
 def list_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
     response = client.list_group_policies(GroupName=group_name)
     return response['PolicyNames']
+
+
+def list_attached_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
+    response = client.list_attached_group_policies(GroupName=group_name)
+    policies = response['AttachedPolicies']
+    return [policy['PolicyName'] for policy in policies]
