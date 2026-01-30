@@ -20,8 +20,8 @@ async def list_group_names_for_user(client: Session.client, username: str) -> li
     return [group['GroupName'] for group in groups]
 
 
-def list_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
-    response = client.list_group_policies(GroupName=group_name)
+async def list_group_policy_names(client: Session.client, group_name: str) -> list[str]:
+    response = await client.list_group_policies(GroupName=group_name)
     return response['PolicyNames']
 
 
