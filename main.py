@@ -1,5 +1,6 @@
 import boto3
 import csv
+from aioboto3.session import Session
 
 
 def list_user_policy_names(client: boto3.client, username: str) -> list[str]:
