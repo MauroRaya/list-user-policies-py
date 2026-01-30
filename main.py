@@ -58,8 +58,6 @@ async def main():
                 policies = await get_policies(client, username)
 
                 print(f'{username} - {policies}')
-            except:
-                continue
 
 
 if __name__ == '__main__':
