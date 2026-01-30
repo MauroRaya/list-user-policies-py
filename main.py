@@ -1,6 +1,7 @@
 from aioboto3.session import Session
 from csv import DictReader
 from contextlib import suppress
+from botocore import exceptions
 from asyncio import run
 
 
