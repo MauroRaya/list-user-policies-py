@@ -1,5 +1,6 @@
 import boto3
 import csv
+from asyncio import run
 from aioboto3.session import Session
 
 
