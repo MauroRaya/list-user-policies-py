@@ -48,6 +48,7 @@ def get_policies(client: boto3.client, username: str) -> set[str]:
 
 
 def main():
+    start = time()
     client = boto3.client('iam')
 
     with open('status_reports.csv', 'r') as f:
@@ -55,21 +56,12 @@ def main():
 
         for _, line in enumerate(reader):
             username = line['user']
-            policies = set()
+            policies = get_policies(client, username)
 
-            try:
-                policies.update(list_user_policy_names(client, username))
-                policies.update(list_attached_user_policy_names(client, username))
+            print(f'{username} - {policies}')
 
-                group_names = list_group_names_for_user(client, username)
-
-                for group_name in group_names:
-                    policies.update(list_group_policy_names(client, group_name))
-                    policies.update(list_attached_group_policy_names(client, group_name))
-
-                print(f'{username} - {policies}')
-            except:
-                continue
+    total = time() - start
+    print(f'{total:.2f}s')
 
 
 if __name__ == '__main__':
