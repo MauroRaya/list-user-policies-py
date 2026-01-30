@@ -14,8 +14,8 @@ async def list_attached_user_policy_names(client: Session.client, username: str)
     return [policy['PolicyName'] for policy in policies]
 
 
-def list_group_names_for_user(client: boto3.client, username: str) -> list[str]:
-    response = client.list_groups_for_user(UserName=username)
+async def list_group_names_for_user(client: Session.client, username: str) -> list[str]:
+    response = await client.list_groups_for_user(UserName=username)
     groups = response['Groups']
     return [group['GroupName'] for group in groups]
 
