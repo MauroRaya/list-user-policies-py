@@ -25,8 +25,8 @@ async def list_group_policy_names(client: Session.client, group_name: str) -> li
     return response['PolicyNames']
 
 
-def list_attached_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
-    response = client.list_attached_group_policies(GroupName=group_name)
+async def list_attached_group_policy_names(client: Session.client, group_name: str) -> list[str]:
+    response = await client.list_attached_group_policies(GroupName=group_name)
     policies = response['AttachedPolicies']
     return [policy['PolicyName'] for policy in policies]
 
