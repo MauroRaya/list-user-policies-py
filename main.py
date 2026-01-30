@@ -41,9 +41,9 @@ def main():
             username = line['user']
             policies = set()
 
-            try:
-                policies.update(list_user_policy_names(client, username))
-                policies.update(list_attached_user_policy_names(client, username))
+    try:
+        policies.update(await list_user_policy_names(client, username))
+        policies.update(await list_attached_user_policy_names(client, username))
 
                 group_names = list_group_names_for_user(client, username)
 
