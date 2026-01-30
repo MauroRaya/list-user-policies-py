@@ -51,7 +51,9 @@ async def get_policies(client: Session.client, username: str) -> set[str]:
 
 
 async def main():
+    start = time()
     session = Session()
+
     async with session.client('iam') as client:
         with open('status_reports.csv', 'r') as f:
             reader = DictReader(f)
@@ -61,6 +63,9 @@ async def main():
                 policies = await get_policies(client, username)
 
                 print(f'{username} - {policies}')
+
+    total = time() - start
+    print(f'{total:.2f}s')
 
 
 if __name__ == '__main__':
