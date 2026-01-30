@@ -1,6 +1,6 @@
+from aioboto3.session import Session
 from csv import DictReader
 from asyncio import run
-from aioboto3.session import Session
 
 
 async def list_user_policy_names(client: Session.client, username: str) -> list[str]:
