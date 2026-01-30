@@ -36,7 +36,7 @@ async def list_attached_group_policy_names(client: Session.client, group_name: s
 async def get_policies(client: Session.client, username: str) -> set[str]:
     policies = set()
 
-    try:
+    with suppress(exceptions.ClientError):
         policies.update(await list_user_policy_names(client, username))
         policies.update(await list_attached_user_policy_names(client, username))
 
@@ -45,8 +45,8 @@ async def get_policies(client: Session.client, username: str) -> set[str]:
         for group_name in group_names:
             policies.update(await list_group_policy_names(client, group_name))
             policies.update(await list_attached_group_policy_names(client, group_name))
-    finally:
-        return policies
+
+    return policies
 
 
 async def main():
