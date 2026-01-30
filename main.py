@@ -30,6 +30,22 @@ def list_attached_group_policy_names(client: boto3.client, group_name: str) -> l
     return [policy['PolicyName'] for policy in policies]
 
 
+def get_policies(client: boto3.client, username: str) -> set[str]:
+    policies = set()
+
+    try:
+        policies.update(list_user_policy_names(client, username))
+        policies.update(list_attached_user_policy_names(client, username))
+
+        group_names = list_group_names_for_user(client, username)
+
+        for group_name in group_names:
+            policies.update(list_group_policy_names(client, group_name))
+            policies.update(list_attached_group_policy_names(client, group_name))
+    finally:
+        return policies
+
+
 def main():
     client = boto3.client('iam')
 
