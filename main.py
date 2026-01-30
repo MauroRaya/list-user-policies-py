@@ -1,68 +1,72 @@
-import boto3
+from aioboto3.session import Session
 from time import time
 from csv import DictReader
+from contextlib import suppress
+from botocore import exceptions
+from asyncio import run
 
 
-def list_user_policy_names(client: boto3.client, username: str) -> list[str]:
-    response = client.list_user_policies(UserName=username)
+async def list_user_policy_names(client: Session.client, username: str) -> list[str]:
+    response = await client.list_user_policies(UserName=username)
     return response['PolicyNames']
 
 
-def list_attached_user_policy_names(client: boto3.client, username: str) -> list[str]:
-    response = client.list_attached_user_policies(UserName=username)
+async def list_attached_user_policy_names(client: Session.client, username: str) -> list[str]:
+    response = await client.list_attached_user_policies(UserName=username)
     policies = response['AttachedPolicies']
     return [policy['PolicyName'] for policy in policies]
 
 
-def list_group_names_for_user(client: boto3.client, username: str) -> list[str]:
-    response = client.list_groups_for_user(UserName=username)
+async def list_group_names_for_user(client: Session.client, username: str) -> list[str]:
+    response = await client.list_groups_for_user(UserName=username)
     groups = response['Groups']
     return [group['GroupName'] for group in groups]
 
 
-def list_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
-    response = client.list_group_policies(GroupName=group_name)
+async def list_group_policy_names(client: Session.client, group_name: str) -> list[str]:
+    response = await client.list_group_policies(GroupName=group_name)
     return response['PolicyNames']
 
 
-def list_attached_group_policy_names(client: boto3.client, group_name: str) -> list[str]:
-    response = client.list_attached_group_policies(GroupName=group_name)
+async def list_attached_group_policy_names(client: Session.client, group_name: str) -> list[str]:
+    response = await client.list_attached_group_policies(GroupName=group_name)
     policies = response['AttachedPolicies']
     return [policy['PolicyName'] for policy in policies]
 
 
-def get_policies(client: boto3.client, username: str) -> set[str]:
+async def get_policies(client: Session.client, username: str) -> set[str]:
     policies = set()
 
-    try:
-        policies.update(list_user_policy_names(client, username))
-        policies.update(list_attached_user_policy_names(client, username))
+    with suppress(exceptions.ClientError):
+        policies.update(await list_user_policy_names(client, username))
+        policies.update(await list_attached_user_policy_names(client, username))
 
-        group_names = list_group_names_for_user(client, username)
+        group_names = await list_group_names_for_user(client, username)
 
         for group_name in group_names:
-            policies.update(list_group_policy_names(client, group_name))
-            policies.update(list_attached_group_policy_names(client, group_name))
-    finally:
-        return policies
+            policies.update(await list_group_policy_names(client, group_name))
+            policies.update(await list_attached_group_policy_names(client, group_name))
+
+    return policies
 
 
-def main():
+async def main():
     start = time()
-    client = boto3.client('iam')
+    session = Session()
 
-    with open('status_reports.csv', 'r') as f:
-        reader = DictReader(f)
+    async with session.client('iam') as client:
+        with open('status_reports.csv', 'r') as f:
+            reader = DictReader(f)
 
-        for _, line in enumerate(reader):
-            username = line['user']
-            policies = get_policies(client, username)
+            for _, line in enumerate(reader):
+                username = line['user']
+                policies = await get_policies(client, username)
 
-            print(f'{username} - {policies}')
+                print(f'{username} - {policies}')
 
     total = time() - start
     print(f'{total:.2f}s')
 
 
 if __name__ == '__main__':
-    main()
+    run(main())
