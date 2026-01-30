@@ -1,6 +1,6 @@
 import boto3
 from time import time
-import csv
+from csv import DictReader
 
 
 def list_user_policy_names(client: boto3.client, username: str) -> list[str]:
