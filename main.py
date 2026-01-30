@@ -1,4 +1,5 @@
 from aioboto3.session import Session
+from time import time
 from csv import DictReader
 from contextlib import suppress
 from botocore import exceptions
