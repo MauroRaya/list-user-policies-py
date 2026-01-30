@@ -31,25 +31,31 @@ async def list_attached_group_policy_names(client: Session.client, group_name: s
     return [policy['PolicyName'] for policy in policies]
 
 
-def main():
-    client = boto3.client('iam')
-
-    with open('status_reports.csv', 'r') as f:
-        reader = csv.DictReader(f)
-
-        for _, line in enumerate(reader):
-            username = line['user']
-            policies = set()
+async def get_policies(client: Session.client, username: str) -> set[str]:
+    policies = set()
 
     try:
         policies.update(await list_user_policy_names(client, username))
         policies.update(await list_attached_user_policy_names(client, username))
 
-                group_names = list_group_names_for_user(client, username)
+        group_names = await list_group_names_for_user(client, username)
 
-                for group_name in group_names:
-                    policies.update(list_group_policy_names(client, group_name))
-                    policies.update(list_attached_group_policy_names(client, group_name))
+        for group_name in group_names:
+            policies.update(await list_group_policy_names(client, group_name))
+            policies.update(await list_attached_group_policy_names(client, group_name))
+    finally:
+        return policies
+
+
+async def main():
+    session = Session()
+    async with session.client('iam') as client:
+        with open('status_reports.csv', 'r') as f:
+            reader = csv.DictReader(f)
+
+            for _, line in enumerate(reader):
+                username = line['user']
+                policies = await get_policies(client, username)
 
                 print(f'{username} - {policies}')
             except:
