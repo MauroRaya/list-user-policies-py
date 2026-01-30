@@ -1,4 +1,4 @@
-import csv
+from csv import DictReader
 from asyncio import run
 from aioboto3.session import Session
 
