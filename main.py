@@ -52,7 +52,7 @@ def main():
     client = boto3.client('iam')
 
     with open('status_reports.csv', 'r') as f:
-        reader = csv.DictReader(f)
+        reader = DictReader(f)
 
         for _, line in enumerate(reader):
             username = line['user']
